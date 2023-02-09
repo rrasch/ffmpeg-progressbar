@@ -38,6 +38,7 @@ def update_progress(video, duration):
             frame = int(match.group(1))
             logging.debug(f"frame: {frame}")
             db.hset(video, "frame", frame)
+            db.expire(video, 60)
     return "Chunks printed successfully"
 
 def progress_dict():
