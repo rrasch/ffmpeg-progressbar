@@ -1,19 +1,20 @@
-from flask import Flask, request, g
+from flask import Flask, request, g, render_template, jsonify
+import json
 import logging
 import re
 import redis
 
 app = Flask(__name__)
-# db = redis.Redis(decode_responses=True)
+db = redis.Redis(decode_responses=True)
 
-def get_db():
-    if "db" not in g:
-        g.db = redis.Redis(decode_responses=True)
-    return g.db
+# def get_db():
+#     if "db" not in g:
+#         g.db = redis.Redis(decode_responses=True)
+#     return g.db
 
 @app.teardown_appcontext
 def close_db(e=None):
-    db = g.pop("db", None)
+    # db = g.pop("db", None)
     if db is not None:
         db.close()
 
@@ -26,17 +27,35 @@ def close_db(e=None):
 #     return app
 
 
-@app.route("/progress/<vid>/<bitrate>", methods=["POST"])
-def print_chunks(vid, bitrate):
-    db = get_db()
+@app.route("/progress/<video>/<duration>", methods=["POST"])
+def update_progress(video, duration):
+    # db = get_db()
+    db.hset(video, "duration", duration)
     for chunk in request.stream:
         # print(chunk.decode("utf-8"))
         match = re.match("^frame=(\d+)$", chunk.decode())
         if match:
             frame = int(match.group(1))
             logging.debug(f"frame: {frame}")
-            db.set(vid, frame)
+            db.hset(video, "frame", frame)
     return "Chunks printed successfully"
+
+def progress_dict():
+    progress = {}
+    for video in db.scan_iter("*"):
+        logging.debug(f"video: {video}")
+        data =  db.hgetall(video)
+        data["percent"] = int(int(data["frame"]) / int(data["duration"]) * 100)
+        progress[video] = data
+    return progress
+
+@app.route("/")
+def index():
+    return render_template("index.html", progress=progress_dict())
+
+@app.route("/progress")
+def progress():
+    return jsonify(progress=progress_dict())
 
 
 if __name__ == "__main__":

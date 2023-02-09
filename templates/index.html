@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+
+function updateProgress(progress) {
+    for (var video in progress) {
+        var progressBar = document.getElementById(video);
+	console.log(progress[video]["percent"]);
+        progressBar.style.width = progress[video]["percent"] + "%";
+    }
+}
+
+setInterval(function() {
+  fetch('/progress')
+    .then(response => response.json())
+    .then(data => {
+      updateProgress(data.progress);
+    });
+}, 10000);
+
+</script>
+</head>
+<body>
+<h1>Progress Bar</h1>
+{% for video in progress %}
+{{video}}
+<div class="progress" style="width: 80%; margin: 50px;">
+<div id="{{video}}" class="progress-bar" role="progressbar" style="width: 0%; height: 20px; background-color: green;"></div>
+</div>
+{% endfor %}
+</body>
+</html>
