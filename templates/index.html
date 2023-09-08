@@ -8,6 +8,16 @@
 function updateProgress(progress) {
     for (var video in progress) {
         var progressBar = document.getElementById(video);
+        if (progressBar == null) {
+            progressBar = $("<div>")
+                .attr("id", video)
+                .attr("class", "progress-bar")
+                .attr("role", "progressbar");
+            newDiv = $("<div>")
+                .attr("style", "width: 60%; margin: 10px 10px 10px 10px;");
+            newDiv.append(progressBar);
+            $("#container").append(newDiv);
+        }
         progressBar.style.width = progress[video]["percent"] + "%";
         progressBar.innerHTML = progress[video]["percent"] + "%";
     }
@@ -23,11 +33,13 @@ setInterval(function() {
 </head>
 <body>
 <h1>Video Transcoding Progress</h1>
+<div id="container">
 {% for video in progress %}
 {{video}}
 <div class="progress" style="width: 60%; margin: 10px 10px 10px 10px;">
 <div id="{{video}}" class="progress-bar" role="progressbar" style="width: {{progress[video]["percent"]}}%; height: 20px; background-color: green;">
 {{progress[video]["percent"]}}&percnt;
+</div>
 </div>
 </div>
 {% endfor %}
