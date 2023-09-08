@@ -17,7 +17,7 @@ function updateProgress(progress) {
             newDiv = $("<div>")
                 .attr("style", "width: 60%; margin: 10px 10px 10px 10px;");
             newDiv.append(progressBar);
-            $("#container").append(newDiv);
+            $("#container").append(video, newDiv);
 	    progressBar = progressBar[0];
         }
         progressBar.style.width = progress[video]["percent"] + "%";
