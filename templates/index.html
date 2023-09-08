@@ -13,7 +13,7 @@ function updateProgress(progress) {
     }
 }
 setInterval(function() {
-  fetch('/progress')
+  fetch('/progress/data')
     .then(response => response.json())
     .then(data => {
       updateProgress(data.progress);
